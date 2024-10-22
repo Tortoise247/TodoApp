@@ -15,7 +15,7 @@ namespace TodoApi.Controllers
         [HttpPost]
         public ActionResult<Todo> PostTodo(Todo todo)
         {
-            if (todo == null || string.IsNullOrEmpty(todo.Title) || string.IsNullOrEmpty(todo.Description))
+            if (todo == null || string.IsNullOrEmpty(todo.Title) )//|| string.IsNullOrEmpty(todo.Description))
             {
                 return BadRequest("Title and description are required");
             }
@@ -41,7 +41,7 @@ namespace TodoApi.Controllers
                 return NotFound();
             }
 
-            if (updatedTodo == null || string.IsNullOrEmpty(updatedTodo.Title) || string.IsNullOrEmpty(updatedTodo.Description))
+            if (updatedTodo == null || string.IsNullOrEmpty(updatedTodo.Title) ) //|| string.IsNullOrEmpty(updatedTodo.Description))
             {
                 return BadRequest("Title and description are required");
             }
