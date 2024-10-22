@@ -1,0 +1,204 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Todo List";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+
+<button id="openModalBtn" type="button" class="btn btn-primary">
+    Open Modal
+</button>
+<button id="addTaskBtn" type="button" class="btn btn-primary">
+    タスクを追加
+</button>
+
+
+
+<ul id="todoList">
+    @foreach (var todo in Model.Todos)
+    {
+        <li>
+            <div>
+
+                <style>
+                    .inline-form {
+                        display: inline-block;
+                        margin-right: 10px;
+                        /* フォーム間のスペースを調整 */
+                    }
+                </style>
+
+                <form method="post" asp-page-handler="Update" class="inline-form">
+                    <label>@todo.Id</label>
+                    <input type="hidden" name="id" value="@todo.Id" />
+                    <input type="text" name="title" value="@todo.Title" />
+                    <input type="text" name="description" value="@todo.Description" />
+                    <input type="checkbox" name="isCompleted" value="true" @(todo.IsCompleted ? "checked" : "") /> Complete
+                    <button type="submit">Update</button>
+                </form>
+                <form method="post" asp-page-handler="Delete" class="inline-form">
+                    <input type="hidden" name="id" value="@todo.Id" />
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
+        </li>
+    }
+</ul>
+
+
+<!-- モーダルダイアログの HTML -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Empty Modal</h2>
+        <p>This is an empty modal dialog.</p>
+        <form method="post" asp-page-handler="Add">
+            <input type="text" asp-for="NewTodo.Title" placeholder="New Todo" />
+            <input type="text" asp-for="NewTodo.Description" placeholder="Description" />
+            <input type="checkbox" asp-for="NewTodo.IsCompleted" /> Complete
+
+
+            <button type="submit">Add</button>
+
+        </form>
+    </div>
+</div>
+
+<!-- モーダルダイアログの HTML -->
+<div id="addform" class="modal">
+    <div class="addform-content">
+        <span class="close">&times;</span>
+        <form method="post" asp-page-handler="Add">
+            <input type="text" asp-for="NewTodo.Title" placeholder="New Todo" />
+            <input type="text" asp-for="NewTodo.Description" placeholder="Description" />
+            <input type="checkbox" asp-for="NewTodo.IsCompleted" /> Complete
+
+
+            <button type="submit">Add</button>
+
+        </form>
+    </div>
+</div>
+
+</div>
+</div>
+
+<style>
+    /* モーダルのスタイル */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .inline-form {
+        display: inline-block;
+        margin-right: 10px;
+        /* フォーム間のスペースを調整 */
+    }
+</style>
+
+<script>
+    // モーダルダイアログの表示と非表示を制御するスクリプト
+    var modal = document.getElementById("myModal");
+    var btn = document.getElementById("openModalBtn");
+    var span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+
+      // タスクを追加ボタンのクリックイベント
+    document.getElementById("addTaskBtn").onclick = function() {
+        var todoList = document.getElementById("todoList");
+        var newTodo = document.createElement("li");
+        newTodo.innerHTML = document.getElementById("addform").innerHTML;
+        @* newTodo.innerHTML =  `
+
+                    <form method="post" asp-page-handler="Add">
+            <input type="text" asp-for="NewTodo.Title" placeholder="New Todo" />
+            <input type="text" asp-for="NewTodo.Description" placeholder="Description" />
+            <input type="checkbox" asp-for="NewTodo.IsCompleted" /> Complete
+
+
+            <button type="submit">Add</button>
+
+        </form>
+<form method="post" action="/?handler=Add" novalidate="novalidate">
+    <input type="text" placeholder="New Todo" data-val="true" data-val-required="The Title field is required." id="NewTodo_Title" name="NewTodo.Title" value="xxx">
+    <input type="text" placeholder="Description" data-val="true" data-val-required="The Description field is required." id="NewTodo_Description" name="NewTodo.Description" value="xxxx">
+    <input type="hidden" name="NewTodo.IsCompleted" value="false" />
+    <input type="checkbox" data-val="true" data-val-required="The IsCompleted field is required." id="NewTodo_IsCompleted" name="NewTodo.IsCompleted" value="true"> Complete
+    <button type="submit">Add</button>
+</form>
+
+
+        `; *@
+        todoList.appendChild(newTodo);
+    }
+</script>
+<button id="showModalButton">Show Modal</button>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById("showModalButton").addEventListener("click", function() {
+            var modalContent = document.getElementById("addform").innerHTML;
+            var newListItem = document.createElement("li");
+            newListItem.innerHTML = modalContent;
+            @* document.getElementById("todoList").appendChild(newListItem); *@
+                        modal.style.display = "block";
+        });
+
+        window.addEventListener("click", function(event) {
+            var modal = document.getElementById("addform");
+            if (modal.style.display === "block" && !modal.contains(event.target) && event.target.id !== "showModalButton") {
+                modal.style.display = "none";
+            }
+            console.log('clicked:' + event.target + ' / ' + modal);
+        });
+    </script>
+}
