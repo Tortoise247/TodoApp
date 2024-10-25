@@ -1,0 +1,20 @@
+# ベースイメージとして公式のASP.NET Coreランタイムイメージを使用
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app/TodoApp.WebApp
+EXPOSE 5000
+
+# ビルドイメージとして公式のSDKイメージを使用
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app/TodoApp.WebApp_src
+COPY  ../src/TodoApp.WebApp ./
+# RUN pwd > /ls.txt
+# RUN ls -la /app/test >> /ls.txt
+
+RUN dotnet publish TodoApp.WebApp.csproj  -c Release -o /app/out
+
+# 最終ステージでビルド成果物をベースイメージにコピー
+FROM base AS final
+WORKDIR /app/out
+COPY --from=build /app/out .
+ENTRYPOINT ["dotnet", "TodoApp.WebApp.dll"]
+# CMD ["tail", "-f", "/dev/null"]

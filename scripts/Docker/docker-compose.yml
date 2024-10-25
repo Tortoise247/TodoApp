@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - todoapi
+      - todowebapp
+
+  todoapi:
+    build:
+      context: ../../
+      dockerfile: scripts/Docker/Dockerfile_todoapi
+    # ports:
+      # - "5001:5001"
+    # volumes:
+    #   - ../../src/TodoApp.Api:/app/TodoApp.Api
+
+  todowebapp:
+    build:
+      context: ../../
+      dockerfile: scripts/Docker/Dockerfile_todoapp
+    # ports:
+      # - "5000:5000"
+    # volumes:
+    #   - ../../src/TodoApp.WebApp:/app/TodoApp.WebApp
