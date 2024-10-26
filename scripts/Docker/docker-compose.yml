@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   nginx:
     image: nginx:latest
@@ -10,21 +8,52 @@ services:
     depends_on:
       - todoapi
       - todowebapp
+    networks:
+      - todoappnetwork
 
   todoapi:
     build:
       context: ../../
       dockerfile: scripts/Docker/Dockerfile_todoapi
-    # ports:
-      # - "5001:5001"
-    # volumes:
-    #   - ../../src/TodoApp.Api:/app/TodoApp.Api
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=todoapp
+      - POSTGRES_USER=todoappuser
+      - POSTGRES_PASSWORD=secret
+    depends_on:
+      - postgres
+    networks:
+      - todoappnetwork
 
   todowebapp:
     build:
       context: ../../
       dockerfile: scripts/Docker/Dockerfile_todoapp
-    # ports:
-      # - "5000:5000"
-    # volumes:
-    #   - ../../src/TodoApp.WebApp:/app/TodoApp.WebApp
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=todoapp
+      - POSTGRES_USER=todoappuser
+      - POSTGRES_PASSWORD=secret
+    depends_on:
+      - postgres
+    networks:
+      - todoappnetwork
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=todoapp
+      - POSTGRES_USER=todoappuser
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - todoappnetwork
+
+volumes:
+  postgres_data:
+
+networks:
+  todoappnetwork:
