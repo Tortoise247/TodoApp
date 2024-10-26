@@ -15,3 +15,10 @@ dotnet sln add  ./TodoApp.Api/TodoApp.Api.csproj
 
 cd ./TodoApp.Api/
 dotnet add package Microsoft.EntityFrameworkCore.InMemory
+
+
+cd ..
+# 新しい WebApp プロジェクトを作成
+dotnet new webapp -n TodoApp.WebApp -o ./TodoApp.WebApp
+# ソリューションに WebApp プロジェクトを追加
+dotnet sln add .\TodoApp.WebApp\TodoApp.WebApp.csproj
