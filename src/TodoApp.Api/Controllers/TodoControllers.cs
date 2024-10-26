@@ -1,5 +1,6 @@
 // Controllers/TodoController.cs
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // 追加
 using TodoApi.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,18 @@ namespace TodoApi.Controllers
     [ApiController]
     public class TodoController : ControllerBase
     {
+
+        private readonly TodoContext _context;
         private static List<Todo> todos = new List<Todo>();
+        public TodoController(TodoContext context)
+        {
+            _context = context;
+        }
 
         [HttpPost]
-        public ActionResult<Todo> PostTodo(Todo todo)
+        public async Task<ActionResult<Todo>> PostTodo(Todo todo)
         {
-            if (todo == null || string.IsNullOrEmpty(todo.Title) )//|| string.IsNullOrEmpty(todo.Description))
+            if (todo == null || string.IsNullOrEmpty(todo.Title))//|| string.IsNullOrEmpty(todo.Description))
             {
                 return BadRequest("Title and description are required");
             }
@@ -23,25 +30,29 @@ namespace TodoApi.Controllers
             todo.Id = todos.Count > 0 ? todos.Max(t => t.Id) + 1 : 1;
             todo.IsCompleted = false; // デフォルト値を設定
             todos.Add(todo);
+
+            _context.Todos.Add(todo);
+            await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(PostTodo), new { id = todo.Id }, todo);
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Todo>> GetTodos()
+        public async Task<ActionResult<IEnumerable<Todo>>> GetTodos()
         {
-            return Ok(todos);
+            return await _context.Todos.ToListAsync();
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Todo> UpdateTodo(long id, Todo updatedTodo)
+        public async Task<IActionResult> UpdateTodo(long id, Todo updatedTodo)
         {
-            var todo = todos.FirstOrDefault(t => t.Id == id);
+            var todo = await _context.Todos.FindAsync(id);
             if (todo == null)
             {
                 return NotFound();
             }
 
-            if (updatedTodo == null || string.IsNullOrEmpty(updatedTodo.Title) ) //|| string.IsNullOrEmpty(updatedTodo.Description))
+            if (updatedTodo == null || string.IsNullOrEmpty(updatedTodo.Title) || string.IsNullOrEmpty(updatedTodo.Description))
             {
                 return BadRequest("Title and description are required");
             }
@@ -50,19 +61,22 @@ namespace TodoApi.Controllers
             todo.Description = updatedTodo.Description;
             todo.IsCompleted = updatedTodo.IsCompleted;
 
+            await _context.SaveChangesAsync();
+
             return Ok(todo);
         }
-
         [HttpDelete("{id}")]
-        public ActionResult DeleteTodo(long id)
+        public async Task<IActionResult> DeleteTodo(long id)
         {
-            var todo = todos.FirstOrDefault(t => t.Id == id);
+            var todo = await _context.Todos.FindAsync(id);
             if (todo == null)
             {
                 return NotFound();
             }
 
-            todos.Remove(todo);
+            _context.Todos.Remove(todo);
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }

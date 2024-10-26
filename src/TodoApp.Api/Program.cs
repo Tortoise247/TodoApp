@@ -1,12 +1,16 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TodoApi.Controllers;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // サービスの追加
 builder.Services.AddControllers();
+
+// DbContextの登録
+builder.Services.AddDbContext<TodoContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // CORS を無効にする
 builder.Services.AddCors(options =>
@@ -18,7 +22,6 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader();
     });
 });
-
 
 var app = builder.Build();
 
