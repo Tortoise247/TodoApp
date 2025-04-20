@@ -1,8 +1,14 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TodoApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// SQLite データベースの設定を追加
+builder.Services.AddDbContext<TodoDbContext>(options =>
+    options.UseSqlite("Data Source=todo.db"));
 
 // Add services to the container.
 builder.Services.AddControllers(); // 必要なサービスを追加

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TodoApi.Data;
 using TodoShared;
 
 namespace TodoApi.Controllers;
@@ -7,37 +9,49 @@ namespace TodoApi.Controllers;
 [Route("api/[controller]")]
 public class TodoController : ControllerBase
 {
-    private static List<TodoItem> _todos = new();
+    private readonly TodoDbContext _context;
+
+    public TodoController(TodoDbContext context)
+    {
+        _context = context;
+    }
 
     [HttpGet]
-    public ActionResult<List<TodoItem>> Get() => _todos;
+    public async Task<ActionResult<List<TodoItem>>> Get()
+    {
+        return await _context.Todos.ToListAsync();
+    }
 
     [HttpPost]
-    public IActionResult Post(TodoItem item)
+    public async Task<IActionResult> Post(TodoItem item)
     {
-        item.Id = _todos.Count > 0 ? _todos.Max(x => x.Id) + 1 : 1;
-        _todos.Add(item);
+        _context.Todos.Add(item);
+        await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
     }
 
     [HttpPut("{id}")]
-    public IActionResult Put(int id, TodoItem item)
+    public async Task<IActionResult> Put(int id, TodoItem item)
     {
-        var existing = _todos.FirstOrDefault(x => x.Id == id);
+        var existing = await _context.Todos.FindAsync(id);
         if (existing == null) return NotFound();
 
         existing.Title = item.Title;
         existing.IsDone = item.IsDone;
+        await _context.SaveChangesAsync();
+
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var item = _todos.FirstOrDefault(x => x.Id == id);
+        var item = await _context.Todos.FindAsync(id);
         if (item == null) return NotFound();
 
-        _todos.Remove(item);
+        _context.Todos.Remove(item);
+        await _context.SaveChangesAsync();
+
         return NoContent();
     }
 }
