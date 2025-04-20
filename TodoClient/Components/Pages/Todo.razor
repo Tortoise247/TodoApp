@@ -5,6 +5,7 @@
 <h3>Todo App</h3>
 
 <input @bind="newTitle" placeholder="New task" />
+<input type="date" @bind="newDeadline" />
 <button @onclick="AddTodo">Add</button>
 
 <ul>
@@ -12,7 +13,7 @@
     {
         <li>
             <input type="checkbox" checked="@todo.IsDone" @onchange="(e) => UpdateTodo(todo)" />
-            @todo.Title
+            @todo.Title - @todo.deadline.ToString("yyyy-MM-dd")
             <button @onclick="() => DeleteTodo(todo.Id)">X</button>
         </li>
     }
@@ -21,6 +22,7 @@
 @code {
     private List<TodoItem> todos = new();
     private string newTitle = "";
+    private DateTime newDeadline = DateTime.UtcNow; // デフォルトで今日の日付
 
     protected override async Task OnInitializedAsync()
     {
@@ -29,12 +31,13 @@
 
     async Task AddTodo()
     {
-        var item = new TodoItem { Title = newTitle, IsDone = false };
+        var item = new TodoItem { Title = newTitle, IsDone = false, deadline = newDeadline };
         var response = await Http.PostAsJsonAsync("api/todo", item);
         if (response.IsSuccessStatusCode)
         {
             todos = await Http.GetFromJsonAsync<List<TodoItem>>("api/todo");
             newTitle = "";
+            newDeadline = DateTime.UtcNow; // 入力フィールドをリセット
         }
     }
 

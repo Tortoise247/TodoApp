@@ -25,6 +25,12 @@ public class TodoController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post(TodoItem item)
     {
+        // 締め切りが指定されていない場合、デフォルト値を設定
+        if (item.deadline == default)
+        {
+            item.deadline = DateTime.UtcNow.AddDays(7); // デフォルトで1週間後
+        }
+
         _context.Todos.Add(item);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
@@ -38,10 +44,12 @@ public class TodoController : ControllerBase
 
         existing.Title = item.Title;
         existing.IsDone = item.IsDone;
+        existing.deadline = item.deadline; // 締め切りを更新
         await _context.SaveChangesAsync();
 
         return NoContent();
     }
+
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
