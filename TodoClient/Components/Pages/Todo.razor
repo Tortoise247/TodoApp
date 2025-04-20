@@ -1,0 +1,51 @@
+﻿@page "/todo"
+@using TodoShared
+@inject HttpClient Http
+
+<h3>Todo App</h3>
+
+<input @bind="newTitle" placeholder="New task" />
+<button @onclick="AddTodo">Add</button>
+
+<ul>
+    @foreach (var todo in todos)
+    {
+        <li>
+            <input type="checkbox" checked="@todo.IsDone" @onchange="(e) => UpdateTodo(todo)" />
+            @todo.Title
+            <button @onclick="() => DeleteTodo(todo.Id)">X</button>
+        </li>
+    }
+</ul>
+
+@code {
+    private List<TodoItem> todos = new();
+    private string newTitle = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        todos = await Http.GetFromJsonAsync<List<TodoItem>>("api/todo");
+    }
+
+    async Task AddTodo()
+    {
+        var item = new TodoItem { Title = newTitle, IsDone = false };
+        var response = await Http.PostAsJsonAsync("api/todo", item);
+        if (response.IsSuccessStatusCode)
+        {
+            todos = await Http.GetFromJsonAsync<List<TodoItem>>("api/todo");
+            newTitle = "";
+        }
+    }
+
+    async Task UpdateTodo(TodoItem item)
+    {
+        await Http.PutAsJsonAsync($"api/todo/{item.Id}", item);
+    }
+
+    async Task DeleteTodo(int id)
+    {
+        await Http.DeleteAsync($"api/todo/{id}");
+        todos = await Http.GetFromJsonAsync<List<TodoItem>>("api/todo");
+    }
+}
