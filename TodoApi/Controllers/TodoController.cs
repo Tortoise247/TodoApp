@@ -50,8 +50,6 @@ public class TodoController : ControllerBase
         return NoContent();
     }
 
-
-
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -62,5 +60,13 @@ public class TodoController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpGet("assignees")]
+    public ActionResult<List<string>> GetAssignees()
+    {
+        // ’S“–ŽÒƒŠƒXƒg‚ð’è‹`
+        var assignees = new List<string> { "Alice", "Bob", "Charlie", "Unassigned" };
+        return assignees;
     }
 }

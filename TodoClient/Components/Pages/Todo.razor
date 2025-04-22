@@ -6,7 +6,13 @@
 
 <input @bind="newTitle" placeholder="New task" />
 <input type="date" @bind="newDeadline" />
-<input @bind="newAssignedTo" placeholder="Assigned to" />
+<select @bind="newAssignedTo">
+    <option value="">Select Assignee</option>
+    @foreach (var assignee in assignees)
+    {
+        <option value="@assignee">@assignee</option>
+    }
+</select>
 <button @onclick="AddTodo">Add</button>
 
 <ul>
@@ -22,13 +28,16 @@
 
 @code {
     private List<TodoItem> todos = new();
+    private List<string> assignees = new(); // 担当者リスト
     private string newTitle = "";
     private DateTime newDeadline = DateTime.UtcNow; // デフォルトで今日の日付
     private string newAssignedTo = ""; // 新しい担当者
 
     protected override async Task OnInitializedAsync()
     {
+        // タスクと担当者リストを取得
         todos = await Http.GetFromJsonAsync<List<TodoItem>>("api/todo");
+        assignees = await Http.GetFromJsonAsync<List<string>>("api/todo/assignees");
     }
 
     async Task AddTodo()
