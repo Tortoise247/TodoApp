@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using TodoApp.Services;
 using TodoApp.Application;
 using TodoApp.InterfaceAdapters;
@@ -7,11 +8,16 @@ class Program
 {
     static void Main(string[] args)
     {
-        ITodoService todoService = new TodoService();
-        var addTaskUseCase = new AddTaskUseCase(todoService);
-        var listTasksUseCase = new ListTasksUseCase(todoService);
+        // DIコンテナのセットアップ
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<ITodoService, TodoService>() // ITodoServiceの実装を登録
+            .AddSingleton<AddTaskUseCase>()            // AddTaskUseCaseを登録
+            .AddSingleton<ListTasksUseCase>()          // ListTasksUseCaseを登録
+            .AddSingleton<ConsoleController>()         // ConsoleControllerを登録
+            .BuildServiceProvider();
 
-        var consoleController = new ConsoleController(addTaskUseCase, listTasksUseCase);
-        consoleController.Run();
+        // ConsoleControllerのインスタンスを取得して実行
+        var consoleController = serviceProvider.GetService<ConsoleController>();
+        consoleController?.Run();
     }
 }
