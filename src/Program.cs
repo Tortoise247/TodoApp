@@ -1,11 +1,15 @@
 ﻿using System;
 using TodoApp.Services;
+using TodoApp.Application;
 
 class Program
 {
     static void Main(string[] args)
     {
-        ITodoService todoService = new TodoService(); // インターフェースを使用
+        ITodoService todoService = new TodoService();
+        var addTaskUseCase = new AddTaskUseCase(todoService);
+        var listTasksUseCase = new ListTasksUseCase(todoService);
+
         string command;
 
         Console.WriteLine("Simple TodoApp");
@@ -21,7 +25,7 @@ class Program
                 var task = command.Substring(4).Trim();
                 try
                 {
-                    todoService.AddTask(task);
+                    addTaskUseCase.Execute(task);
                     Console.WriteLine($"Added: {task}");
                 }
                 catch (ArgumentException ex)
@@ -32,7 +36,7 @@ class Program
             else if (command == "list")
             {
                 Console.WriteLine("Todo List:");
-                var tasks = todoService.GetTasks();
+                var tasks = listTasksUseCase.Execute();
                 if (tasks.Count == 0)
                 {
                     Console.WriteLine("  (No tasks)");
