@@ -5,7 +5,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var todoService = new TodoService();
+        ITodoService todoService = new TodoService(); // インターフェースを使用
         string command;
 
         Console.WriteLine("Simple TodoApp");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TodoApp.Services
 {
-    public class TodoService
+    public class TodoService : ITodoService
     {
         private readonly List<string> _todoList = new();
 
