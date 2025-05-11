@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using TodoApp.Services;
 
 class Program
 {
     static void Main(string[] args)
     {
-        var todoList = new List<string>();
+        var todoService = new TodoService();
         string command;
 
         Console.WriteLine("Simple TodoApp");
@@ -19,28 +19,29 @@ class Program
             if (command?.StartsWith("add ") == true)
             {
                 var task = command.Substring(4).Trim();
-                if (!string.IsNullOrEmpty(task))
+                try
                 {
-                    todoList.Add(task);
+                    todoService.AddTask(task);
                     Console.WriteLine($"Added: {task}");
                 }
-                else
+                catch (ArgumentException ex)
                 {
-                    Console.WriteLine("Task cannot be empty.");
+                    Console.WriteLine(ex.Message);
                 }
             }
             else if (command == "list")
             {
                 Console.WriteLine("Todo List:");
-                if (todoList.Count == 0)
+                var tasks = todoService.GetTasks();
+                if (tasks.Count == 0)
                 {
                     Console.WriteLine("  (No tasks)");
                 }
                 else
                 {
-                    for (int i = 0; i < todoList.Count; i++)
+                    for (int i = 0; i < tasks.Count; i++)
                     {
-                        Console.WriteLine($"  {i + 1}. {todoList[i]}");
+                        Console.WriteLine($"  {i + 1}. {tasks[i]}");
                     }
                 }
             }
